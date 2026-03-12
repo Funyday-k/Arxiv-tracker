@@ -25,7 +25,7 @@ sort_by: "lastUpdatedDate"  # 还可以是submittedDate 建议改成lastUpdatedD
 sort_order: "descending"
 
 # zh / en / both
-lang: "zh"
+lang: "both"
 
 # —— 摘要设置 ——
 # mode: none / heuristic / llm
@@ -37,7 +37,7 @@ summary:
 # —— 邮件发送（QQ 邮箱） ——
 email:
   enabled: true
-  subject: "[arXiv] Daily Digest"
+  subject: "[arXiv] 日报"
   smtp_server: "smtp.qq.com"
   smtp_port: 465
   smtp_pass_env: "SMTP_PASS"
@@ -53,7 +53,7 @@ llm:
   provider: "openai-compatible"     # 兼容 OpenAI SDK 的服务
   # 硅基流动的版本
   base_url: "https://api.siliconflow.cn"
-  model: "Qwen/Qwen2.5-7B-Instruct"
+  model: "kimi-k2.5"
   api_key_env: "OPENAI_COMPAT_API_KEY"
   # Deepseek的版本
   # base_url: "https://api.deepseek.com"
