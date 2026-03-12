@@ -292,6 +292,8 @@ def run(config_path, categories, keywords, exclude_keywords, logic, max_results,
                 click.secho(f"[Scrape] 补链失败 {(it.get('id') or '')[:18]}...: {e}", fg="yellow")
 
         # 3) 摘要
+        # build_two_stage_summary 对所有 mode 都返回双语字段（digest_zh / digest_en），
+        # lang 参数在函数内部未实际使用，因此只需调用一次即可，避免重复调用 LLM。
         summaries_zh, summaries_en = {}, {}
         def _sum_for_lang(L):
             out = {}
@@ -300,10 +302,15 @@ def run(config_path, categories, keywords, exclude_keywords, logic, max_results,
                 out[sid] = build_two_stage_summary(item=it, mode=mode, lang=L, scope=scope, llm_cfg=llm_cfg)
             return out
 
-        if lang in ("zh", "both"):
-            summaries_zh = _sum_for_lang("zh")
-        if lang in ("en", "both"):
-            summaries_en = _sum_for_lang("en")
+        need_zh = lang in ("zh", "both")
+        need_en = lang in ("en", "both")
+        if need_zh or need_en:
+            # 只调用一次，双语结果复用
+            sums = _sum_for_lang("zh")
+            if need_zh:
+                summaries_zh = sums
+            if need_en:
+                summaries_en = sums
 
         # 4) 翻译（中文）
         translations = {}

@@ -15,7 +15,8 @@ def save_json(items: List[Dict[str, Any]], out_dir: str) -> str:
 
 def _render_lang_block(lang_label: str, it: Dict[str, Any],
                        summ: Optional[Dict[str, str]],
-                       trans: Optional[Dict[str, str]]):
+                       trans: Optional[Dict[str, str]],
+                       lang: str = "zh"):
     lines = []
     lines.append(f"### [{lang_label}]")
     # 翻译优先展示（如有）
@@ -27,6 +28,14 @@ def _render_lang_block(lang_label: str, it: Dict[str, Any],
             if t_title: lines.append(f"- 标题：{t_title}")
             if t_sum:   lines.append(f"- 摘要：{t_sum}")
             lines.append("")
+    # LLM 生成的双语总结（digest_zh / digest_en）
+    if summ:
+        digest_key = "digest_zh" if lang == "zh" else "digest_en"
+        digest = summ.get(digest_key)
+        if digest:
+            lines.append(digest)
+            lines.append("")
+    # 兼容旧式 TL;DR + 方法卡格式
     if summ and summ.get("tldr"):
         lines.append("> **TL;DR**: " + summ["tldr"])
         lines.append("")
@@ -69,9 +78,9 @@ def save_markdown(items: List[Dict[str, Any]], out_dir: str,
         sid = it.get("id") or ""
         trans = translations.get(sid) if translations else None
         if lang in ("zh", "both"):
-            lines.extend(_render_lang_block("中文", it, (summaries_zh or {}).get(sid), trans))
+            lines.extend(_render_lang_block("中文", it, (summaries_zh or {}).get(sid), trans, lang="zh"))
         if lang in ("en", "both"):
-            lines.extend(_render_lang_block("English", it, (summaries_en or {}).get(sid), None))
+            lines.extend(_render_lang_block("English", it, (summaries_en or {}).get(sid), None, lang="en"))
         lines.append("")
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))

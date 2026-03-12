@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, re
+import os, re, sys
 from typing import Dict, Any, Optional
 from .llm import call_llm_two_stage
 from .llm import call_llm_bilingual_summary
@@ -118,8 +118,8 @@ def build_two_stage_summary(item: Dict[str, Any], mode: str, lang: str, scope: s
                     system_prompt_en=cfg.get("system_prompt_en", "")
                 )
                 return {"digest_en": data.get("digest_en",""), "digest_zh": data.get("digest_zh",""), "tldr":"", "full_md":""}
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[LLM Summary] 调用 LLM 失败，回退到启发式摘要：{e}", file=sys.stderr)
         # LLM 不可用时兜底
         h = heuristic_paragraphs(item)
         return {"digest_en": h["digest_en"], "digest_zh": h["digest_zh"], "tldr":"", "full_md":""}
